@@ -1,28 +1,62 @@
 import React, { useEffect, useState } from "react"
 import { Story } from "../../assets/utils/types"
 import { fetchNewStoriesId, fetchNewStories } from "../../services/storyService"
+import Loader from "../loader/loader"
+import prevButton from "../../assets/Icons/prev.png"
+import nextButton from "../../assets/Icons/next.png"
 import "./newsDisplayer.scss"
 
 const NewsDisplayer = (props: any) => {
-  const [newStoriesId, setNewStoriesId] = useState([] as number[])
-  const [newStories, setNewStories] = useState([] as Story[])
+  const [lowRange, setLowRange] = useState(0)
+  const [highRange, setHighRange] = useState(15)
+  const [storiesId, setStoriesId] = useState([] as number[])
+  const [stories, setStories] = useState([] as Story[])
   const loadStories = async () => {
-    const newStoriesIdData = await fetchNewStoriesId()
-    setNewStoriesId(newStoriesIdData)
-    const newStoryData = await fetchNewStories(newStoriesIdData.slice(0, 10))
-    setNewStories(newStoryData)
+    if (props.tab === "new") {
+      const newStoriesIdData = await fetchNewStoriesId()
+      setStoriesId(newStoriesIdData)
+      const newStoryData = await fetchNewStories(newStoriesIdData.slice(lowRange, highRange))
+      setStories(newStoryData)
+    }
+  }
+  const prevStory = () => {
+    if (lowRange > 0) {
+      setStories([])
+      setLowRange(lowRange - 15)
+      setHighRange(highRange - 15)
+    }
+    console.log("Low Range:" + lowRange, "High Range" + highRange)
+  }
+  const nextStory = () => {
+    if (highRange < 500) {
+      setStories([])
+      setHighRange(highRange + 15)
+      setLowRange(lowRange + 15)
+    }
+    console.log("Low Range:" + lowRange, "High Range" + highRange)
   }
   useEffect(() => {
     loadStories()
-  }, [])
+  }, [lowRange, highRange])
   return (
     <div>
-      {newStories.map((story, index) => (
-        <div key={story.id}>
-          <div>{index + 1}</div>
-          <span className="title">{story.title}</span>
-        </div>
-      ))}
+      <img src={prevButton} alt="prevButton" className="nextButton" onClick={() => prevStory()} />
+
+      <img src={nextButton} alt="nextButton" className="prevButton" onClick={() => nextStory()} />
+
+      {stories.length !== 0 ? (
+        stories.map((story, index) => (
+          <div key={story.id} className="storyCard">
+            <div>{index + lowRange + 1}</div>
+            <a href={story.url}>
+              <span className="title">{story.title}</span>
+            </a>
+            <span className="author">{story.author}</span>
+          </div>
+        ))
+      ) : (
+        <Loader></Loader>
+      )}
     </div>
   )
 }
