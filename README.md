@@ -1,2 +1,0 @@
-# hackerNews
-Discovery assignment 
