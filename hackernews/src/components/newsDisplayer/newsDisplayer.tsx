@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react"
 import { Story } from "../../assets/utils/types"
-import { fetchNewStoriesId, fetchNewStories } from "../../services/storyService"
+import {
+  fetchBestStoriesId,
+  fetchNewStoriesId,
+  fetchStories,
+  fetchTopStoriesId
+} from "../../services/storyService"
 import Loader from "../loader/loader"
 import prevButton from "../../assets/Icons/prev.png"
 import nextButton from "../../assets/Icons/next.png"
@@ -11,14 +16,28 @@ const NewsDisplayer = (props: any) => {
   const [highRange, setHighRange] = useState(15)
   const [storiesId, setStoriesId] = useState([] as number[])
   const [stories, setStories] = useState([] as Story[])
+
   const loadStories = async () => {
     if (props.tab === "new") {
       const newStoriesIdData = await fetchNewStoriesId()
       setStoriesId(newStoriesIdData)
-      const newStoryData = await fetchNewStories(newStoriesIdData.slice(lowRange, highRange))
+      const newStoryData = await fetchStories(newStoriesIdData.slice(lowRange, highRange))
       setStories(newStoryData)
     }
+    if (props.tab === "top") {
+      const topStoriesIdData = await fetchTopStoriesId()
+      setStoriesId(topStoriesIdData)
+      const topStoryData = await fetchStories(topStoriesIdData.slice(lowRange, highRange))
+      setStories(topStoryData)
+    }
+    if (props.tab === "best") {
+      const bestStoriesIdData = await fetchBestStoriesId()
+      setStoriesId(bestStoriesIdData)
+      const bestStoryData = await fetchStories(bestStoriesIdData.slice(lowRange, highRange))
+      setStories(bestStoryData)
+    }
   }
+
   const prevStory = () => {
     if (lowRange > 0) {
       setStories([])
@@ -27,6 +46,7 @@ const NewsDisplayer = (props: any) => {
     }
     console.log("Low Range:" + lowRange, "High Range" + highRange)
   }
+
   const nextStory = () => {
     if (highRange < 500) {
       setStories([])
@@ -35,9 +55,11 @@ const NewsDisplayer = (props: any) => {
     }
     console.log("Low Range:" + lowRange, "High Range" + highRange)
   }
+
   useEffect(() => {
     loadStories()
   }, [lowRange, highRange])
+
   return (
     <div>
       <img src={prevButton} alt="prevButton" className="nextButton" onClick={() => prevStory()} />
