@@ -22,11 +22,6 @@ const Header = (props: any) => {
           onClick={() => props.setTab("best")}>
           Best Stories
         </div>
-        <div
-          className={props.tabSelected === "ask" ? "activeTab" : "tab"}
-          onClick={() => props.setTab("ask")}>
-          Ask
-        </div>
       </div>
     </div>
   )
